@@ -10,3 +10,4 @@ langchain
 pydantic
 pylatexenc
 scikit-learn
+openai

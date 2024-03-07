@@ -19,7 +19,6 @@ import time
 import typing
 import bittensor as bt
 
-import random
 
 # Bittensor Miner Template:
 import detection
@@ -27,6 +26,7 @@ import detection
 # import base miner class which takes care of most of the boilerplate
 from detection.base.miner import BaseMinerNeuron
 from miners.gpt_zero import GPT2PPL
+from neurons.miners.custom_gpt import CustomGPT
 
 
 class Miner(BaseMinerNeuron):
@@ -42,6 +42,7 @@ class Miner(BaseMinerNeuron):
         super(Miner, self).__init__(config=config)
 
         self.model = GPT2PPL(device=self.device) #TODO use device
+        self.openai_model = CustomGPT()
         self.load_state()
 
 
@@ -67,17 +68,17 @@ class Miner(BaseMinerNeuron):
         input_data = synapse.texts
         bt.logging.info(f"Amount of texts recieved: {len(input_data)}")
 
-        preds = []
-        for text in input_data:
-            try:
-                pred_prob = self.model(text) > 0.8
-            except Exception as e:
-                pred_prob = 0
-                bt.logging.error('Couldnt proceed text "{}..."'.format(input_data))
-                bt.logging.error(e)
+        # preds = []
+        # for text in input_data:
+        #     try:
+        #         pred_prob = self.model(text) > 0.8
+        #     except Exception as e:
+        #         pred_prob = 0
+        #         bt.logging.error('Couldnt proceed text "{}..."'.format(input_data))
+        #         bt.logging.error(e)
 
-            preds.append(pred_prob)
-
+        #     preds.append(pred_prob)
+        preds = self.openai_model.predict(input_data)
         bt.logging.info(f"Made predictions in {int(time.time() - start_time)}s")
 
         synapse.predictions = preds
